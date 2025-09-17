@@ -1,0 +1,42 @@
+[
+    {
+      "title": "Math Basics",
+      "questions": [
+        { "text": "2 + 2 = ?", "options": [2, 3, 4, 5], "answer": 2 },
+        { "text": "5 × 3 = ?", "options": [8, 15, 10, 20], "answer": 1 },
+        { "text": "12 ÷ 4 = ?", "options": [2, 3, 4, 6], "answer": 1 },
+        { "text": "7 - 5 = ?", "options": [1, 2, 3, 4], "answer": 1 },
+        { "text": "9 + 6 = ?", "options": [13, 14, 15, 16], "answer": 2 }
+      ]
+    },
+    {
+      "title": "General Knowledge",
+      "questions": [
+        { "text": "Capital of France?", "options": ["Paris", "London", "Berlin", "Rome"], "answer": 0 },
+        { "text": "Largest planet?", "options": ["Earth", "Mars", "Jupiter", "Venus"], "answer": 2 },
+        { "text": "Fastest land animal?", "options": ["Cheetah", "Lion", "Horse", "Tiger"], "answer": 0 },
+        { "text": "Longest river?", "options": ["Amazon", "Nile", "Yangtze", "Mississippi"], "answer": 1 },
+        { "text": "Highest mountain?", "options": ["K2", "Everest", "Kangchenjunga", "Makalu"], "answer": 1 }
+      ]
+    },
+    {
+      "title": "Science Quiz",
+      "questions": [
+        { "text": "H2O is?", "options": ["Oxygen", "Water", "Hydrogen", "Helium"], "answer": 1 },
+        { "text": "Sun rises from?", "options": ["East", "West", "North", "South"], "answer": 0 },
+        { "text": "Earth is a?", "options": ["Star", "Planet", "Moon", "Comet"], "answer": 1 },
+        { "text": "Light speed is approx?", "options": [300000, 150000, 100000, 500000], "answer": 0 },
+        { "text": "Chemical symbol of Gold?", "options": ["Ag", "Au", "Go", "Gd"], "answer": 1 }
+      ]
+    },
+    {
+      "title": "History Quiz",
+      "questions": [
+        { "text": "Who discovered America?", "options": ["Columbus", "Vasco", "Magellan", "Cook"], "answer": 0 },
+        { "text": "First president of USA?", "options": ["Lincoln", "Washington", "Jefferson", "Adams"], "answer": 1 },
+        { "text": "Year of French Revolution?", "options": [1789, 1776, 1804, 1799], "answer": 0 },
+        { "text": "Mughal emperor of India?", "options": ["Akbar", "Aurangzeb", "Shah Jahan", "All"], "answer": 3 },
+        { "text": "World War II ended in?", "options": [1945, 1939, 1918, 1950], "answer": 0 }
+      ]
+    }
+]  
