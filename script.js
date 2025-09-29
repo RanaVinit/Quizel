@@ -1,6 +1,10 @@
 let userQuizzes = JSON.parse(localStorage.getItem("quizzes")) || [];
 let quizzes = []; // final array for display
 
+// Global variables for quiz creation
+let currentQuiz = null; // stores the quiz being created
+let currentQuestions = []; // stores questions being added to current quiz
+
 fetch('builtin_quizzes.json')
     .then(res => res.json())
     .then(data => {
@@ -135,4 +139,187 @@ function startQuiz(index) {
     }
 
     loadQuestion();
+}
+
+function createQuiz() {
+    const title = document.getElementById("quizTitle").value.trim();
+    const description = document.getElementById("quizDescription").value.trim();
+    
+    if (!title) {
+        alert("Please enter a quiz title!");
+        return;
+    }
+    
+    // Initialize new quiz
+    currentQuiz = {
+        title: title,
+        description: description,
+        questions: []
+    };
+    currentQuestions = [];
+    
+    // Show quiz dashboard
+    showQuizDashboard();
+}
+
+function showQuizDashboard() {
+    const container = document.getElementById("main-container");
+    container.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Working on: "${currentQuiz.title}" ✓</h2>
+        <p class="mb-4 text-gray-700">Questions: ${currentQuestions.length}</p>
+        
+        <button class="bg-green-600 hover:bg-green-700 text-white p-2 w-full mb-2 rounded" onclick="showAddQuestionForm()">Add Question</button>
+        <button class="bg-purple-600 hover:bg-purple-700 text-white p-2 w-full mb-2 rounded" onclick="saveQuiz()">Save Quiz</button>
+        <button class="bg-red-600 hover:bg-red-700 text-white p-2 w-full mb-2 rounded" onclick="deleteCurrentQuiz()">Delete Quiz</button>
+        <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadCreateQuiz()">Back to Create Menu</button>
+    `;
+}
+
+function loadCreateQuiz() {
+    const container = document.getElementById("main-container");
+    container.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Create New Quiz</h2>
+        <input type="text" id="quizTitle" placeholder="Quiz Title" class="border p-2 w-full mb-4 rounded shadow">
+        <input type="text" id="quizDescription" placeholder="Quiz Description" class="border p-2 w-full mb-4 rounded shadow">
+        <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 w-full mb-2 rounded" onclick="createQuiz()">Create Quiz</button>
+        <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadHome()">Back</button>
+    `;
+}
+
+function showAddQuestionForm() {
+    const container = document.getElementById("main-container");
+    container.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Add Question to: "${currentQuiz.title}"</h2>
+        
+        <input type="text" id="questionText" placeholder="Enter your question" class="border p-2 w-full mb-4 rounded shadow">
+        <input type="text" id="optionA" placeholder="Option A" class="border p-2 w-full mb-2 rounded shadow">
+        <input type="text" id="optionB" placeholder="Option B" class="border p-2 w-full mb-2 rounded shadow">
+        <input type="text" id="optionC" placeholder="Option C" class="border p-2 w-full mb-2 rounded shadow">
+        <input type="text" id="optionD" placeholder="Option D" class="border p-2 w-full mb-4 rounded shadow">
+        
+        <label for="correctAnswer" class="block mb-2 font-medium">Correct Answer:</label>
+        <select id="correctAnswer" class="border p-2 w-full mb-4 rounded shadow">
+            <option value="0">A</option>
+            <option value="1">B</option>
+            <option value="2">C</option>
+            <option value="3">D</option>
+        </select>
+        
+        <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 w-full mb-2 rounded" onclick="saveQuestion()">Save Question</button>
+        <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="showQuizDashboard()">Cancel</button>
+    `;
+}
+
+function saveQuestion() {
+    const text = document.getElementById("questionText").value.trim();
+    const optionA = document.getElementById("optionA").value.trim();
+    const optionB = document.getElementById("optionB").value.trim();
+    const optionC = document.getElementById("optionC").value.trim();
+    const optionD = document.getElementById("optionD").value.trim();
+    const correctAnswer = parseInt(document.getElementById("correctAnswer").value);
+    
+    if (!text || !optionA || !optionB || !optionC || !optionD) {
+        alert("Please fill in all fields!");
+        return;
+    }
+    
+    const question = {
+        text: text,
+        options: [optionA, optionB, optionC, optionD],
+        answer: correctAnswer.toString()
+    };
+    
+    currentQuestions.push(question);
+    showQuizDashboard();
+}
+
+function saveQuiz() {
+    if (currentQuestions.length === 0) {
+        alert("Please add at least one question before saving!");
+        return;
+    }
+    
+    currentQuiz.questions = currentQuestions;
+    userQuizzes.push(currentQuiz);
+    
+    // Save to localStorage
+    localStorage.setItem("quizzes", JSON.stringify(userQuizzes));
+    
+    // Update the main quizzes array
+    quizzes = [...quizzes.filter(q => !userQuizzes.includes(q)), ...userQuizzes];
+    
+    alert(`Quiz "${currentQuiz.title}" saved successfully!`);
+    
+    // Reset and go back to create menu
+    currentQuiz = null;
+    currentQuestions = [];
+    loadCreateQuiz();
+}
+
+function deleteCurrentQuiz() {
+    if (confirm("Are you sure you want to delete this quiz? This action cannot be undone.")) {
+        currentQuiz = null;
+        currentQuestions = [];
+        loadCreateQuiz();
+    }
+}
+
+function loadScores() {
+    const container = document.getElementById("main-container");
+    
+    if (userQuizzes.length === 0) {
+        container.innerHTML = `
+            <h2 class="text-2xl font-bold mb-4">My Quizzes</h2>
+            <p class="text-center text-gray-600 mb-4">No quizzes created yet.</p>
+            <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 w-full rounded" onclick="loadCreateQuiz()">Create Your First Quiz</button>
+            <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full mt-2 rounded" onclick="loadHome()">Back to Home</button>
+        `;
+        return;
+    }
+    
+    let quizList = userQuizzes.map((quiz, index) => `
+        <div class="border p-4 mb-4 rounded shadow">
+            <h3 class="text-lg font-bold mb-2">${quiz.title}</h3>
+            <p class="text-gray-600 mb-2">${quiz.description}</p>
+            <p class="text-sm text-gray-500 mb-3">${quiz.questions.length} questions</p>
+            <button class="bg-red-600 hover:bg-red-700 text-white p-2 mr-2 rounded" onclick="deleteSavedQuiz(${index})">Delete</button>
+            <button class="bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded" onclick="editSavedQuiz(${index})">Edit</button>
+        </div>
+    `).join('');
+    
+    container.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">My Quizzes (${userQuizzes.length})</h2>
+        ${quizList}
+        <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 w-full mb-2 rounded" onclick="loadCreateQuiz()">Create New Quiz</button>
+        <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadHome()">Back to Home</button>
+    `;
+}
+
+function deleteSavedQuiz(index) {
+    const quiz = userQuizzes[index];
+    if (confirm(`Are you sure you want to delete "${quiz.title}"? This action cannot be undone.`)) {
+        userQuizzes.splice(index, 1);
+        localStorage.setItem("quizzes", JSON.stringify(userQuizzes));
+        
+        // Update the main quizzes array - remove deleted quiz completely
+        quizzes = quizzes.filter(q => q !== quiz);
+        
+        alert(`Quiz "${quiz.title}" deleted successfully!`);
+        loadScores(); // Refresh the list
+    }
+}
+
+function editSavedQuiz(index) {
+    const quiz = userQuizzes[index];
+    if (confirm(`Edit "${quiz.title}"? This will start editing the quiz.`)) {
+        // Load the quiz for editing
+        currentQuiz = { ...quiz };
+        currentQuestions = [...quiz.questions];
+        
+        // Remove from userQuizzes temporarily
+        userQuizzes.splice(index, 1);
+        
+        // Show quiz dashboard for editing
+        showQuizDashboard();
+    }
 }
