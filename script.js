@@ -1,5 +1,23 @@
 let userQuizzes = JSON.parse(localStorage.getItem("quizzes")) || [];
 let quizzes = []; // final array for display
+let builtinQuizzes = [];
+let isEditing = false;
+let editingIndex = -1;
+
+// Before-unload warning when editing
+let beforeUnloadHandler = function (e) {
+    if (isEditing) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+    }
+};
+function enableEditUnloadWarning() {
+    window.addEventListener('beforeunload', beforeUnloadHandler);
+}
+function disableEditUnloadWarning() {
+    window.removeEventListener('beforeunload', beforeUnloadHandler);
+}
 
 // Global variables for quiz creation
 let currentQuiz = null; // stores the quiz being created
@@ -8,21 +26,23 @@ let currentQuestions = []; // stores questions being added to current quiz
 fetch('builtin_quizzes.json')
     .then(res => res.json())
     .then(data => {
-        quizzes = [...data, ...userQuizzes]; // merge builtin + user quizzes
+        builtinQuizzes = data;
+        quizzes = [...builtinQuizzes, ...userQuizzes]; // merge builtin + user quizzes
         loadHome(); // render Home Screen after loading quizzes
     })
     .catch(err => {
         console.error("Error loading builtin quizzes:", err);
+        builtinQuizzes = [];
         quizzes = [...userQuizzes]; // fallback to user quizzes only
         loadHome();
     });
-loadHome();
 
 function loadHome() {
     const container = document.getElementById("main-container");
     container.innerHTML = `
         <button class="bg-blue-500 text-white p-2 w-full mb-2 rounded" onclick="loadCreateQuiz()">Create Quiz</button>
         <button class="bg-green-500 text-white p-2 w-full mb-2 rounded" onclick="loadTakeQuiz()">Take Quiz</button>
+        <button class="bg-green-500 text-white p-2 w-full mb-2 rounded" onclick="ManageQuiz()">Manage Quiz</button>
         <button class="bg-purple-500 text-white p-2 w-full rounded" onclick="loadScores()">View Scores</button>
     `;
 }
@@ -129,6 +149,19 @@ function startQuiz(index) {
     }
 
     function showResult() {
+        // Persist score attempt
+        try {
+            const attempts = JSON.parse(localStorage.getItem('scores')) || [];
+            attempts.unshift({
+                title: quiz.title,
+                date: new Date().toISOString(),
+                score: score,
+                total: selectedQuestions.length
+            });
+            localStorage.setItem('scores', JSON.stringify(attempts));
+        } catch (e) {
+            console.error('Failed to save score:', e);
+        }
         container.innerHTML = `
             <h2 class="text-2xl font-bold mb-4">${quiz.title} - Result</h2>
             <p class="mb-4 text-lg">You scored <strong>${score}</strong> / ${selectedQuestions.length}</p>
@@ -162,16 +195,16 @@ function createQuiz() {
     showQuizDashboard();
 }
 
-function showQuizDashboard() {
+function showQuizDashboard(isEditing = false) {
     const container = document.getElementById("main-container");
     container.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">Working on: "${currentQuiz.title}" ✓</h2>
+        <h2 class="text-2xl font-bold mb-4">Working on: "${currentQuiz.title}"</h2>
         <p class="mb-4 text-gray-700">Questions: ${currentQuestions.length}</p>
         
         <button class="bg-green-600 hover:bg-green-700 text-white p-2 w-full mb-2 rounded" onclick="showAddQuestionForm()">Add Question</button>
         <button class="bg-purple-600 hover:bg-purple-700 text-white p-2 w-full mb-2 rounded" onclick="saveQuiz()">Save Quiz</button>
         <button class="bg-red-600 hover:bg-red-700 text-white p-2 w-full mb-2 rounded" onclick="deleteCurrentQuiz()">Delete Quiz</button>
-        <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadCreateQuiz()">Back to Create Menu</button>
+        ${isEditing ? '' : '<button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadCreateQuiz()">Back to Create Menu</button>'}
     `;
 }
 
@@ -240,19 +273,26 @@ function saveQuiz() {
     }
     
     currentQuiz.questions = currentQuestions;
-    userQuizzes.push(currentQuiz);
+    if (isEditing && editingIndex > -1) {
+        userQuizzes[editingIndex] = currentQuiz;
+    } else {
+        userQuizzes.push(currentQuiz);
+    }
     
     // Save to localStorage
     localStorage.setItem("quizzes", JSON.stringify(userQuizzes));
     
-    // Update the main quizzes array
-    quizzes = [...quizzes.filter(q => !userQuizzes.includes(q)), ...userQuizzes];
+    // Update the main quizzes array from builtin + user quizzes
+    quizzes = [...builtinQuizzes, ...userQuizzes];
     
     alert(`Quiz "${currentQuiz.title}" saved successfully!`);
     
     // Reset and go back to create menu
     currentQuiz = null;
     currentQuestions = [];
+    isEditing = false;
+    editingIndex = -1;
+    disableEditUnloadWarning();
     loadCreateQuiz();
 }
 
@@ -260,11 +300,16 @@ function deleteCurrentQuiz() {
     if (confirm("Are you sure you want to delete this quiz? This action cannot be undone.")) {
         currentQuiz = null;
         currentQuestions = [];
+        if (isEditing) {
+            isEditing = false;
+            editingIndex = -1;
+            disableEditUnloadWarning();
+        }
         loadCreateQuiz();
     }
 }
 
-function loadScores() {
+function ManageQuiz() {
     const container = document.getElementById("main-container");
     
     if (userQuizzes.length === 0) {
@@ -290,7 +335,6 @@ function loadScores() {
     container.innerHTML = `
         <h2 class="text-2xl font-bold mb-4">My Quizzes (${userQuizzes.length})</h2>
         ${quizList}
-        <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 w-full mb-2 rounded" onclick="loadCreateQuiz()">Create New Quiz</button>
         <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadHome()">Back to Home</button>
     `;
 }
@@ -305,7 +349,7 @@ function deleteSavedQuiz(index) {
         quizzes = quizzes.filter(q => q !== quiz);
         
         alert(`Quiz "${quiz.title}" deleted successfully!`);
-        loadScores(); // Refresh the list
+        ManageQuiz(); // Refresh the list
     }
 }
 
@@ -315,11 +359,47 @@ function editSavedQuiz(index) {
         // Load the quiz for editing
         currentQuiz = { ...quiz };
         currentQuestions = [...quiz.questions];
+        isEditing = true;
+        editingIndex = index;
+        enableEditUnloadWarning();
         
-        // Remove from userQuizzes temporarily
-        userQuizzes.splice(index, 1);
-        
-        // Show quiz dashboard for editing
-        showQuizDashboard();
+        // Show quiz dashboard for editing (no back button)
+        showQuizDashboard(true);
     }
+}
+
+function loadScores() {
+    const container = document.getElementById('main-container');
+    const attempts = JSON.parse(localStorage.getItem('scores')) || [];
+    if (attempts.length === 0) {
+        container.innerHTML = `
+            <h2 class="text-2xl font-bold mb-4">Scores</h2>
+            <p class="text-gray-600 mb-4">No attempts yet.</p>
+            <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadHome()">Back</button>
+        `;
+        return;
+    }
+    const list = attempts.map(a => {
+        const d = new Date(a.date);
+        const when = d.toLocaleString();
+        return `<div class="border p-3 mb-2 rounded">
+            <div class="flex justify-between text-sm text-gray-600">
+                <span>${when}</span>
+                <span>${a.score} / ${a.total}</span>
+            </div>
+            <div class="font-medium">${a.title}</div>
+        </div>`;
+    }).join('');
+    container.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Scores (${attempts.length})</h2>
+        ${list}
+        <button class="bg-red-600 hover:bg-red-700 text-white p-2 w-full mb-2 rounded" onclick="clearScores()">Clear History</button>
+        <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadHome()">Back</button>
+    `;
+}
+
+function clearScores() {
+    if (!confirm('Clear all score history?')) return;
+    localStorage.removeItem('scores');
+    loadScores();
 }
