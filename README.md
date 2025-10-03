@@ -1,0 +1,1 @@
+Quizel is a simple and fun quiz website I built to make learning a little more exciting. You can take multiple-choice quizzes, see your score as you go, and even play with a timer if you like a challenge.
