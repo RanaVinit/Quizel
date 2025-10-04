@@ -40,10 +40,47 @@ fetch('builtin_quizzes.json')
 function loadHome() {
     const container = document.getElementById("main-container");
     container.innerHTML = `
-        <button class="bg-blue-500 text-white p-2 w-full mb-2 rounded" onclick="loadCreateQuiz()">Create Quiz</button>
-        <button class="bg-green-500 text-white p-2 w-full mb-2 rounded" onclick="loadTakeQuiz()">Take Quiz</button>
-        <button class="bg-green-500 text-white p-2 w-full mb-2 rounded" onclick="ManageQuiz()">Manage Quiz</button>
-        <button class="bg-purple-500 text-white p-2 w-full rounded" onclick="loadScores()">View Scores</button>
+        <div class="h-full flex items-center justify-center">
+            <div class="w-full max-w-4xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="glass-card p-8 hover-lift animate-fadeInUp cursor-pointer" onclick="loadCreateQuiz()">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 opacity-50">
+                                <i class="fas fa-plus text-2xl text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">Create Quiz</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card p-8 hover-lift animate-fadeInUp delay-100 cursor-pointer" onclick="loadTakeQuiz()">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-play text-2xl text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">Take Quiz</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card p-8 hover-lift animate-fadeInUp delay-200 cursor-pointer" onclick="ManageQuiz()">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-cog text-2xl text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">Manage Quiz</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card p-8 hover-lift animate-fadeInUp delay-300 cursor-pointer" onclick="loadScores()">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-chart-line text-2xl text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">View Scores</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     `;
 }
 
@@ -51,19 +88,56 @@ function loadTakeQuiz() {
     const container = document.getElementById("main-container");
 
     if (!quizzes.length) {
-        container.innerHTML = `<p class="text-center text-red-500">No quizzes available. Create one first!</p>
-            <button class="bg-gray-500 text-white p-2 w-full rounded" onclick="loadHome()">Back</button>`;
+        container.innerHTML = `
+            <div class="glass-card p-8 text-center animate-fadeInUp">
+                <div class="mb-6">
+                    <i class="fas fa-exclamation-triangle text-6xl text-yellow-500 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">No Quizzes Available</h2>
+                    <p class="text-gray-600">Create your first quiz to get started!</p>
+                </div>
+                <button class="btn-modern btn-primary" onclick="loadCreateQuiz()">
+                    <i class="fas fa-plus"></i>
+                    Create Quiz
+                </button>
+            </div>
+        `;
         return;
     }
 
-    let quizButtons = quizzes.map((q, index) => {
-        return `<button class="bg-green-500 text-white p-2 w-full mb-2 rounded" onclick="chooseMode(${index})">${q.title}</button>`;
+    let quizCards = quizzes.map((q, index) => {
+        return `
+            <div class="quiz-card p-6 hover-lift animate-fadeInUp delay-${(index % 5) * 100}">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">${q.title}</h3>
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                        ${q.questions.length} questions
+                    </span>
+                </div>
+                ${q.description ? `<p class="text-gray-600 mb-4">${q.description}</p>` : ''}
+                <button class="btn-modern btn-success w-full" onclick="chooseMode(${index})">
+                    <i class="fas fa-play"></i>
+                    Start Quiz
+                </button>
+            </div>
+        `;
     }).join('');
 
     container.innerHTML = `
-        <h2 class="text-lg font-bold mb-4">Select a Quiz</h2>
-        ${quizButtons}
-        <button class="bg-gray-500 text-white p-2 w-full rounded" onclick="loadHome()">Back</button>
+        <div class="glass-card p-8 animate-fadeInUp">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gradient mb-2">
+                    <i class="fas fa-rocket mr-3"></i>Select a Quiz
+                </h2>
+                <p class="text-gray-600">Choose from ${quizzes.length} available quiz${quizzes.length !== 1 ? 'es' : ''}</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                ${quizCards}
+            </div>
+            <button class="btn-modern btn-secondary w-full" onclick="loadHome()">
+                <i class="fas fa-arrow-left"></i>
+                Back to Home
+            </button>
+        </div>
     `;
 }
 
@@ -72,23 +146,49 @@ function chooseMode(index) {
     const quiz = quizzes[index];
 
     container.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">${quiz.title}</h2>
-        <p class="mb-2 text-gray-700">This quiz has <strong>${quiz.questions.length}</strong> questions.</p>
-        
-        <label for="numQ" class="block mb-2 font-medium">How many questions do you want to attempt?</label>
+        <div class="glass-card p-8 animate-fadeInUp">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gradient mb-4">
+                    <i class="fas fa-cog mr-3"></i>${quiz.title}
+                </h2>
+                <div class="bg-blue-50 rounded-2xl p-6 mb-6">
+                    <div class="flex items-center justify-center mb-4">
+                        <i class="fas fa-question-circle text-4xl text-blue-600 mr-4"></i>
+                        <div class="text-left">
+                            <p class="text-2xl font-bold text-blue-800">${quiz.questions.length}</p>
+                            <p class="text-blue-600">Total Questions</p>
+                        </div>
+                    </div>
+                    ${quiz.description ? `<p class="text-gray-600 italic">"${quiz.description}"</p>` : ''}
+                </div>
+            </div>
+            
+            <div class="mb-8">
+                <label for="numQ" class="block text-lg font-semibold text-gray-700 mb-4">
+                    <i class="fas fa-sliders-h mr-2"></i>How many questions do you want to attempt?
+                </label>
+                <div class="relative">
         <input id="numQ" type="number" 
                min="1" max="${quiz.questions.length}" 
                value="${quiz.questions.length}" 
-               class="border p-2 w-full mb-4 rounded shadow">
+                           class="input-modern focus-ring text-center text-xl font-bold">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-4">
+                        <span class="text-gray-500 font-medium">/ ${quiz.questions.length}</span>
+                    </div>
+                </div>
+            </div>
 
-        <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 w-full mb-2 rounded" 
-                onclick="startQuiz(${index})">
+            <div class="space-y-4">
+                <button class="btn-modern btn-primary w-full text-lg" onclick="startQuiz(${index})">
+                    <i class="fas fa-play"></i>
             Start Quiz
         </button>
-        <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" 
-                onclick="loadTakeQuiz()">
-            Back
+                <button class="btn-modern btn-secondary w-full" onclick="loadTakeQuiz()">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Quiz Selection
         </button>
+            </div>
+        </div>
     `;
 }
 
@@ -111,26 +211,57 @@ function startQuiz(index) {
         let timeLeft = 10; // seconds per question
 
         container.innerHTML = `
-            <h2 class="text-2xl font-bold mb-4">${quiz.title}</h2>
-            <div class="flex justify-between items-center mb-2">
-                <p class="text-gray-700">Question ${currentQ + 1} of ${selectedQuestions.length}</p>
-                <p id="timer" class="font-bold text-red-600">${timeLeft}s</p>
+            <div class="question-card p-8 animate-fadeInUp">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-gradient mb-4">
+                        <i class="fas fa-brain mr-3"></i>${quiz.title}
+                    </h2>
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="bg-blue-100 px-4 py-2 rounded-full">
+                            <span class="text-blue-800 font-semibold">
+                                Question ${currentQ + 1} of ${selectedQuestions.length}
+                            </span>
+                        </div>
+                        <div id="timer" class="timer ${timeLeft <= 3 ? 'warning' : ''}">
+                            <i class="fas fa-clock mr-2"></i>${timeLeft}s
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${((currentQ + 1) / selectedQuestions.length) * 100}%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6 text-center leading-relaxed">
+                        ${q.text}
+                    </h3>
             </div>
-            <p class="mb-4 text-lg">${q.text}</p>
-            <div>
+                
+                <div class="space-y-4">
                 ${q.options.map((opt, i) => 
-                    `<button class="bg-gray-200 hover:bg-gray-300 p-2 w-full mb-2 rounded" 
+                        `<button class="option-btn hover-scale" 
                              onclick="selectAnswer('${i}', '${q.answer}')">
-                        ${String.fromCharCode(65+i)}. ${opt}
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold mr-4">
+                                ${String.fromCharCode(65+i)}
+                            </span>
+                            ${opt}
                     </button>`
                 ).join('')}
+                </div>
             </div>
         `;
 
         // start timer
         timer = setInterval(() => {
             timeLeft--;
-            document.getElementById("timer").textContent = timeLeft + "s";
+            const timerElement = document.getElementById("timer");
+            timerElement.innerHTML = `<i class="fas fa-clock mr-2"></i>${timeLeft}s`;
+            
+            // Add warning class when time is running low
+            if (timeLeft <= 3) {
+                timerElement.classList.add('warning');
+            }
+            
             if (timeLeft <= 0) {
                 clearInterval(timer);
                 currentQ++;
@@ -162,12 +293,52 @@ function startQuiz(index) {
         } catch (e) {
             console.error('Failed to save score:', e);
         }
+        
+        const percentage = Math.round((score / selectedQuestions.length) * 100);
+        let resultClass = 'btn-success';
+        let resultIcon = 'fas fa-trophy';
+        let resultMessage = 'Excellent!';
+        
+        if (percentage < 50) {
+            resultClass = 'btn-danger';
+            resultIcon = 'fas fa-redo';
+            resultMessage = 'Keep practicing!';
+        } else if (percentage < 80) {
+            resultClass = 'btn-warning';
+            resultIcon = 'fas fa-thumbs-up';
+            resultMessage = 'Good job!';
+        }
+        
         container.innerHTML = `
-            <h2 class="text-2xl font-bold mb-4">${quiz.title} - Result</h2>
-            <p class="mb-4 text-lg">You scored <strong>${score}</strong> / ${selectedQuestions.length}</p>
-            <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 w-full rounded" onclick="loadHome()">
+            <div class="score-display animate-fadeInScale">
+                <div class="text-center mb-8">
+                    <i class="${resultIcon} text-6xl mb-4"></i>
+                    <h2 class="text-3xl font-bold mb-2">${quiz.title}</h2>
+                    <p class="text-xl opacity-90">${resultMessage}</p>
+                </div>
+                
+                <div class="bg-white/20 rounded-2xl p-6 mb-8">
+                    <div class="text-center">
+                        <div class="text-6xl font-bold mb-2">${score}/${selectedQuestions.length}</div>
+                        <div class="text-2xl font-semibold mb-4">${percentage}%</div>
+                        <div class="w-full bg-white/30 rounded-full h-4 mb-4">
+                            <div class="bg-white h-4 rounded-full transition-all duration-1000" 
+                                 style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <button class="btn-modern ${resultClass} w-full text-lg" onclick="loadHome()">
+                        <i class="fas fa-home"></i>
                 Back to Home
             </button>
+                    <button class="btn-modern btn-secondary w-full" onclick="loadTakeQuiz()">
+                        <i class="fas fa-redo"></i>
+                        Take Another Quiz
+                    </button>
+                </div>
+            </div>
         `;
     }
 
@@ -179,7 +350,7 @@ function createQuiz() {
     const description = document.getElementById("quizDescription").value.trim();
     
     if (!title) {
-        alert("Please enter a quiz title!");
+        showToast("Please enter a quiz title!", 'warning');
         return;
     }
     
@@ -198,48 +369,162 @@ function createQuiz() {
 function showQuizDashboard(isEditing = false) {
     const container = document.getElementById("main-container");
     container.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">Working on: "${currentQuiz.title}"</h2>
-        <p class="mb-4 text-gray-700">Questions: ${currentQuestions.length}</p>
-        
-        <button class="bg-green-600 hover:bg-green-700 text-white p-2 w-full mb-2 rounded" onclick="showAddQuestionForm()">Add Question</button>
-        <button class="bg-purple-600 hover:bg-purple-700 text-white p-2 w-full mb-2 rounded" onclick="saveQuiz()">Save Quiz</button>
-        <button class="bg-red-600 hover:bg-red-700 text-white p-2 w-full mb-2 rounded" onclick="deleteCurrentQuiz()">Delete Quiz</button>
-        ${isEditing ? '' : '<button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadCreateQuiz()">Back to Create Menu</button>'}
+        <div class="glass-card p-8 animate-fadeInUp">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gradient mb-2">
+                    <i class="fas fa-edit mr-3"></i>Quiz Dashboard
+                </h2>
+                <p class="text-gray-600">Working on: "${currentQuiz.title}"</p>
+            </div>
+            
+            <div class="bg-blue-50 rounded-2xl p-6 mb-8">
+                <div class="flex items-center justify-center mb-4">
+                    <i class="fas fa-list-ol text-4xl text-blue-600 mr-4"></i>
+                    <div class="text-left">
+                        <p class="text-2xl font-bold text-blue-800">${currentQuestions.length}</p>
+                        <p class="text-blue-600">Questions Added</p>
+                    </div>
+                </div>
+                ${currentQuiz.description ? `<p class="text-gray-600 italic text-center">"${currentQuiz.description}"</p>` : ''}
+            </div>
+            
+            <div class="space-y-4">
+                <button class="btn-modern btn-success w-full" onclick="showAddQuestionForm()">
+                    <i class="fas fa-plus"></i>
+                    Add Question
+                </button>
+                <button class="btn-modern btn-primary w-full" onclick="saveQuiz()">
+                    <i class="fas fa-save"></i>
+                    Save Quiz
+                </button>
+                <button class="btn-modern btn-danger w-full" onclick="deleteCurrentQuiz()">
+                    <i class="fas fa-trash"></i>
+                    Delete Quiz
+                </button>
+                ${isEditing ? '' : '<button class="btn-modern btn-secondary w-full" onclick="loadCreateQuiz()"><i class="fas fa-arrow-left"></i>Back to Create Menu</button>'}
+            </div>
+        </div>
     `;
 }
 
 function loadCreateQuiz() {
     const container = document.getElementById("main-container");
     container.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">Create New Quiz</h2>
-        <input type="text" id="quizTitle" placeholder="Quiz Title" class="border p-2 w-full mb-4 rounded shadow">
-        <input type="text" id="quizDescription" placeholder="Quiz Description" class="border p-2 w-full mb-4 rounded shadow">
-        <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 w-full mb-2 rounded" onclick="createQuiz()">Create Quiz</button>
-        <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadHome()">Back</button>
+        <div class="glass-card p-8 animate-fadeInUp">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gradient mb-2">
+                    <i class="fas fa-plus-circle mr-3"></i>Create New Quiz
+                </h2>
+                <p class="text-gray-600">Design your own custom quiz with multiple choice questions</p>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label for="quizTitle" class="block text-lg font-semibold text-gray-700 mb-3">
+                        <i class="fas fa-heading mr-2"></i>Quiz Title
+                    </label>
+                    <input type="text" id="quizTitle" placeholder="Enter a title for your quiz" 
+                           class="input-modern focus-ring">
+                </div>
+                
+                <div>
+                    <label for="quizDescription" class="block text-lg font-semibold text-gray-700 mb-3">
+                        <i class="fas fa-align-left mr-2"></i>Quiz Description
+                    </label>
+                    <input type="text" id="quizDescription" placeholder="Describe what this quiz is about (optional)" 
+                           class="input-modern focus-ring">
+                </div>
+            </div>
+            
+            <div class="space-y-4 mt-8">
+                <button class="btn-modern btn-primary w-full text-lg" onclick="createQuiz()">
+                    <i class="fas fa-magic"></i>
+                    Create Quiz
+                </button>
+                <button class="btn-modern btn-secondary w-full" onclick="loadHome()">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Home
+                </button>
+            </div>
+        </div>
     `;
 }
 
 function showAddQuestionForm() {
     const container = document.getElementById("main-container");
     container.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">Add Question to: "${currentQuiz.title}"</h2>
-        
-        <input type="text" id="questionText" placeholder="Enter your question" class="border p-2 w-full mb-4 rounded shadow">
-        <input type="text" id="optionA" placeholder="Option A" class="border p-2 w-full mb-2 rounded shadow">
-        <input type="text" id="optionB" placeholder="Option B" class="border p-2 w-full mb-2 rounded shadow">
-        <input type="text" id="optionC" placeholder="Option C" class="border p-2 w-full mb-2 rounded shadow">
-        <input type="text" id="optionD" placeholder="Option D" class="border p-2 w-full mb-4 rounded shadow">
-        
-        <label for="correctAnswer" class="block mb-2 font-medium">Correct Answer:</label>
-        <select id="correctAnswer" class="border p-2 w-full mb-4 rounded shadow">
-            <option value="0">A</option>
-            <option value="1">B</option>
-            <option value="2">C</option>
-            <option value="3">D</option>
+        <div class="glass-card p-8 animate-fadeInUp">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gradient mb-2">
+                    <i class="fas fa-question-circle mr-3"></i>Add Question
+                </h2>
+                <p class="text-gray-600">Add a new question to "${currentQuiz.title}"</p>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label for="questionText" class="block text-lg font-semibold text-gray-700 mb-3">
+                        <i class="fas fa-question mr-2"></i>Question Text
+                    </label>
+                    <input type="text" id="questionText" placeholder="Enter your question here" 
+                           class="input-modern focus-ring">
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="optionA" class="block text-sm font-medium text-gray-700 mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold mr-2">A</span>Option A
+                        </label>
+                        <input type="text" id="optionA" placeholder="First option" 
+                               class="input-modern focus-ring">
+                    </div>
+                    <div>
+                        <label for="optionB" class="block text-sm font-medium text-gray-700 mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold mr-2">B</span>Option B
+                        </label>
+                        <input type="text" id="optionB" placeholder="Second option" 
+                               class="input-modern focus-ring">
+                    </div>
+                    <div>
+                        <label for="optionC" class="block text-sm font-medium text-gray-700 mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold mr-2">C</span>Option C
+                        </label>
+                        <input type="text" id="optionC" placeholder="Third option" 
+                               class="input-modern focus-ring">
+                    </div>
+                    <div>
+                        <label for="optionD" class="block text-sm font-medium text-gray-700 mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold mr-2">D</span>Option D
+                        </label>
+                        <input type="text" id="optionD" placeholder="Fourth option" 
+                               class="input-modern focus-ring">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="correctAnswer" class="block text-lg font-semibold text-gray-700 mb-3">
+                        <i class="fas fa-check-circle mr-2"></i>Correct Answer
+                    </label>
+                    <select id="correctAnswer" class="input-modern focus-ring">
+                        <option value="0">A - First Option</option>
+                        <option value="1">B - Second Option</option>
+                        <option value="2">C - Third Option</option>
+                        <option value="3">D - Fourth Option</option>
         </select>
-        
-        <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 w-full mb-2 rounded" onclick="saveQuestion()">Save Question</button>
-        <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="showQuizDashboard()">Cancel</button>
+                </div>
+            </div>
+            
+            <div class="space-y-4 mt-8">
+                <button class="btn-modern btn-success w-full text-lg" onclick="saveQuestion()">
+                    <i class="fas fa-save"></i>
+                    Save Question
+                </button>
+                <button class="btn-modern btn-secondary w-full" onclick="showQuizDashboard()">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </button>
+            </div>
+        </div>
     `;
 }
 
@@ -252,7 +537,7 @@ function saveQuestion() {
     const correctAnswer = parseInt(document.getElementById("correctAnswer").value);
     
     if (!text || !optionA || !optionB || !optionC || !optionD) {
-        alert("Please fill in all fields!");
+        showToast("Please fill in all fields!", 'warning');
         return;
     }
     
@@ -263,12 +548,13 @@ function saveQuestion() {
     };
     
     currentQuestions.push(question);
+    showToast("Question added successfully!", 'success');
     showQuizDashboard();
 }
 
 function saveQuiz() {
     if (currentQuestions.length === 0) {
-        alert("Please add at least one question before saving!");
+        showToast("Please add at least one question before saving!", 'warning');
         return;
     }
     
@@ -285,7 +571,7 @@ function saveQuiz() {
     // Update the main quizzes array from builtin + user quizzes
     quizzes = [...builtinQuizzes, ...userQuizzes];
     
-    alert(`Quiz "${currentQuiz.title}" saved successfully!`);
+    showToast(`Quiz "${currentQuiz.title}" saved successfully!`, 'success');
     
     // Reset and go back to create menu
     currentQuiz = null;
@@ -314,28 +600,66 @@ function ManageQuiz() {
     
     if (userQuizzes.length === 0) {
         container.innerHTML = `
-            <h2 class="text-2xl font-bold mb-4">My Quizzes</h2>
-            <p class="text-center text-gray-600 mb-4">No quizzes created yet.</p>
-            <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 w-full rounded" onclick="loadCreateQuiz()">Create Your First Quiz</button>
-            <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full mt-2 rounded" onclick="loadHome()">Back to Home</button>
+            <div class="glass-card p-8 text-center animate-fadeInUp">
+                <div class="mb-8">
+                    <i class="fas fa-folder-open text-6xl text-gray-400 mb-4"></i>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">My Quizzes</h2>
+                    <p class="text-gray-600 text-lg">No quizzes created yet. Start building your collection!</p>
+                </div>
+                <div class="space-y-4">
+                    <button class="btn-modern btn-primary w-full" onclick="loadCreateQuiz()">
+                        <i class="fas fa-plus"></i>
+                        Create Your First Quiz
+                    </button>
+                    <button class="btn-modern btn-secondary w-full" onclick="loadHome()">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Home
+                    </button>
+                </div>
+            </div>
         `;
         return;
     }
     
     let quizList = userQuizzes.map((quiz, index) => `
-        <div class="border p-4 mb-4 rounded shadow">
-            <h3 class="text-lg font-bold mb-2">${quiz.title}</h3>
-            <p class="text-gray-600 mb-2">${quiz.description}</p>
-            <p class="text-sm text-gray-500 mb-3">${quiz.questions.length} questions</p>
-            <button class="bg-red-600 hover:bg-red-700 text-white p-2 mr-2 rounded" onclick="deleteSavedQuiz(${index})">Delete</button>
-            <button class="bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded" onclick="editSavedQuiz(${index})">Edit</button>
+        <div class="quiz-card p-6 hover-lift animate-fadeInUp delay-${(index % 5) * 100}">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">${quiz.title}</h3>
+                    ${quiz.description ? `<p class="text-gray-600 mb-3">${quiz.description}</p>` : ''}
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="fas fa-question-circle mr-2"></i>
+                        <span>${quiz.questions.length} questions</span>
+                    </div>
+                </div>
+                <div class="flex space-x-2 ml-4">
+                    <button class="btn-modern btn-danger text-sm px-3 py-2" onclick="deleteSavedQuiz(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="btn-modern btn-warning text-sm px-3 py-2" onclick="editSavedQuiz(${index})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     `).join('');
     
     container.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">My Quizzes (${userQuizzes.length})</h2>
+        <div class="glass-card p-8 animate-fadeInUp">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gradient mb-2">
+                    <i class="fas fa-cog mr-3"></i>My Quizzes
+                </h2>
+                <p class="text-gray-600">Manage your ${userQuizzes.length} quiz${userQuizzes.length !== 1 ? 'es' : ''}</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         ${quizList}
-        <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadHome()">Back to Home</button>
+            </div>
+            <button class="btn-modern btn-secondary w-full" onclick="loadHome()">
+                <i class="fas fa-arrow-left"></i>
+                Back to Home
+            </button>
+        </div>
     `;
 }
 
@@ -348,7 +672,7 @@ function deleteSavedQuiz(index) {
         // Update the main quizzes array - remove deleted quiz completely
         quizzes = quizzes.filter(q => q !== quiz);
         
-        alert(`Quiz "${quiz.title}" deleted successfully!`);
+        showToast(`Quiz "${quiz.title}" deleted successfully!`, 'success');
         ManageQuiz(); // Refresh the list
     }
 }
@@ -373,33 +697,142 @@ function loadScores() {
     const attempts = JSON.parse(localStorage.getItem('scores')) || [];
     if (attempts.length === 0) {
         container.innerHTML = `
-            <h2 class="text-2xl font-bold mb-4">Scores</h2>
-            <p class="text-gray-600 mb-4">No attempts yet.</p>
-            <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadHome()">Back</button>
+            <div class="glass-card p-8 text-center animate-fadeInUp">
+                <div class="mb-8">
+                    <i class="fas fa-chart-line text-6xl text-gray-400 mb-4"></i>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Score History</h2>
+                    <p class="text-gray-600 text-lg">No quiz attempts yet. Take a quiz to see your scores here!</p>
+                </div>
+                <div class="space-y-4">
+                    <button class="btn-modern btn-primary w-full" onclick="loadTakeQuiz()">
+                        <i class="fas fa-play"></i>
+                        Take a Quiz
+                    </button>
+                    <button class="btn-modern btn-secondary w-full" onclick="loadHome()">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Home
+                    </button>
+                </div>
+            </div>
         `;
         return;
     }
-    const list = attempts.map(a => {
+    
+    const list = attempts.map((a, index) => {
         const d = new Date(a.date);
         const when = d.toLocaleString();
-        return `<div class="border p-3 mb-2 rounded">
-            <div class="flex justify-between text-sm text-gray-600">
-                <span>${when}</span>
-                <span>${a.score} / ${a.total}</span>
+        const percentage = Math.round((a.score / a.total) * 100);
+        let scoreClass = 'text-green-600';
+        let scoreIcon = 'fas fa-trophy';
+        
+        if (percentage < 50) {
+            scoreClass = 'text-red-600';
+            scoreIcon = 'fas fa-redo';
+        } else if (percentage < 80) {
+            scoreClass = 'text-yellow-600';
+            scoreIcon = 'fas fa-thumbs-up';
+        }
+        
+        return `
+            <div class="quiz-card p-6 hover-lift animate-fadeInUp delay-${(index % 5) * 100}">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <i class="${scoreIcon} ${scoreClass} text-2xl mr-4"></i>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">${a.title}</h3>
+                            <p class="text-sm text-gray-500">${when}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold ${scoreClass}">${a.score}/${a.total}</div>
+                        <div class="text-sm text-gray-500">${percentage}%</div>
+                    </div>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-1000" 
+                         style="width: ${percentage}%"></div>
+                </div>
             </div>
-            <div class="font-medium">${a.title}</div>
-        </div>`;
+        `;
     }).join('');
+    
     container.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4">Scores (${attempts.length})</h2>
+        <div class="glass-card p-8 animate-fadeInUp">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gradient mb-2">
+                    <i class="fas fa-chart-line mr-3"></i>Score History
+                </h2>
+                <p class="text-gray-600">Your ${attempts.length} quiz attempt${attempts.length !== 1 ? 's' : ''}</p>
+            </div>
+            <div class="space-y-4 mb-8">
         ${list}
-        <button class="bg-red-600 hover:bg-red-700 text-white p-2 w-full mb-2 rounded" onclick="clearScores()">Clear History</button>
-        <button class="bg-gray-500 hover:bg-gray-600 text-white p-2 w-full rounded" onclick="loadHome()">Back</button>
+            </div>
+            <div class="space-y-4">
+                <button class="btn-modern btn-danger w-full" onclick="clearScores()">
+                    <i class="fas fa-trash"></i>
+                    Clear History
+                </button>
+                <button class="btn-modern btn-secondary w-full" onclick="loadHome()">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Home
+                </button>
+            </div>
+        </div>
     `;
 }
 
 function clearScores() {
     if (!confirm('Clear all score history?')) return;
     localStorage.removeItem('scores');
+    showToast('Score history cleared successfully!', 'success');
     loadScores();
+}
+
+// Toast notification system
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type} animate-slideInRight`;
+    
+    const icon = type === 'success' ? 'fas fa-check-circle' : 
+                 type === 'error' ? 'fas fa-exclamation-circle' : 
+                 type === 'warning' ? 'fas fa-exclamation-triangle' : 
+                 'fas fa-info-circle';
+    
+    toast.innerHTML = `
+        <div class="flex items-center">
+            <i class="${icon} mr-3 text-lg"></i>
+            <span class="font-medium">${message}</span>
+        </div>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        toast.style.animation = 'slideInRight 0.5s ease-out reverse';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 500);
+    }, 3000);
+}
+
+// Enhanced alert function with toast
+function showAlert(message, type = 'info') {
+    showToast(message, type);
+}
+
+// Loading overlay functions
+function showLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.remove('hidden');
+    overlay.classList.add('flex');
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.add('hidden');
+    overlay.classList.remove('flex');
 }
