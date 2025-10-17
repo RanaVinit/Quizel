@@ -2,8 +2,13 @@
 
 # QuizeL — Learn Smarter. Play Harder.
 
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![Vercel](https://img.shields.io/badge/Hosted%20on-Vercel-black?style=flat&logo=vercel)
+
 **QuizeL** is a lightweight, fully responsive quiz web app that makes learning interactive and fun.  
-Open the app, pick a quiz, answer multiple-choice questions, and get instant feedback — no backend required.
+Open the app, pick a quiz, answer multiple-choice questions, and get instant feedback.
 
 ---
 
@@ -15,7 +20,7 @@ Open the app, pick a quiz, answer multiple-choice questions, and get instant fee
 - **Responsive:** Works across mobile, tablet, and desktop.  
 - **Easy to Customize:** Add or edit quizzes via `builtin_quizzes.json`.
 
-## 🛠️ Getting Started
+## Getting Started
 
 ### Prerequisites
 - A modern web browser (Chrome, Edge, Firefox, Safari).
@@ -23,9 +28,10 @@ Open the app, pick a quiz, answer multiple-choice questions, and get instant fee
 
 ### Run Locally
 1. Clone the repository  
-   ```bash
-   git clone https://github.com/vinitrana-code/QuizeL.git
-2. Now GoLive on the index.html
+   ```bash```
+   git clone https://github.com/RanaVinit/Quizel.git
+2. Open the folder in VS Code
+3. Right-click index.html and select "Open with Live Server"
 
 ### Creating a Quiz
 
@@ -49,14 +55,12 @@ Open the app, pick a quiz, answer multiple-choice questions, and get instant fee
 
 ## Project Structure
 
-QuizeL/
-│
-├── assets/ # Images, Icons, banner
-├── builtin_quizzes.json (Preloaded quiz data)
-├── index.html # Main HTML file
-├── style.css # Styles and responsive layout
-├── script.js # Quiz logic and UI interactions
-└── README.md # Documentation
+- `assets/`: Images, Icons, banner
+- `builtin_quizzes.json`: Preloaded quiz data
+- `index.html`: Main HTML file
+- `style.css`: Styles and responsive layout
+- `script.js`: Quiz logic and UI interactions
+- `README.md`: Documentation
 
 ## Technologies Used
 
