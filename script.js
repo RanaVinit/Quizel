@@ -1,10 +1,9 @@
 let userQuizzes = JSON.parse(localStorage.getItem("quizzes")) || [];
-let quizzes = []; // final array for display
+let quizzes = [];
 let builtinQuizzes = [];
 let isEditing = false;
 let editingIndex = -1;
 
-// Before-unload warning when editing
 let beforeUnloadHandler = function (e) {
     if (isEditing) {
         e.preventDefault();
@@ -19,9 +18,8 @@ function disableEditUnloadWarning() {
     window.removeEventListener('beforeunload', beforeUnloadHandler);
 }
 
-// Global variables for quiz creation
-let currentQuiz = null; // stores the quiz being created
-let currentQuestions = []; // stores questions being added to current quiz
+let currentQuiz = null;
+let currentQuestions = [];
 
 fetch('builtin_quizzes.json')
     .then(res => res.json())
@@ -168,10 +166,8 @@ function chooseMode(index) {
                     <i class="fas fa-sliders-h mr-2"></i>How many questions do you want to attempt?
                 </label>
                 <div class="relative">
-        <input id="numQ" type="number" 
-               min="1" max="${quiz.questions.length}" 
-               value="${quiz.questions.length}" 
-                           class="input-modern focus-ring text-center text-xl font-bold">
+                    <input id="numQ" type="number" min="1" max="${quiz.questions.length}" value="${quiz.questions.length}" 
+                        class="input-modern focus-ring text-center text-xl font-bold">
                     <div class="absolute inset-y-0 right-0 flex items-center pr-4">
                         <span class="text-gray-500 font-medium">/ ${quiz.questions.length}</span>
                     </div>
@@ -179,17 +175,36 @@ function chooseMode(index) {
             </div>
 
             <div class="space-y-4">
-                <button class="btn-modern btn-primary w-full text-lg" onclick="startQuiz(${index})">
-                    <i class="fas fa-play"></i>
-            Start Quiz
-        </button>
+                <button class="btn-modern btn-primary w-full text-lg" id="startBtn">
+                    <i class="fas fa-play"></i> Start Quiz
+                </button>
                 <button class="btn-modern btn-secondary w-full" onclick="loadTakeQuiz()">
-                    <i class="fas fa-arrow-left"></i>
-                    Back to Quiz Selection
-        </button>
+                    <i class="fas fa-arrow-left"></i> Back to Quiz Selection
+                </button>
             </div>
         </div>
     `;
+
+    const startBtn = document.getElementById("startBtn");
+    startBtn.onclick = () => {
+        const numInput = document.getElementById("numQ");
+        let numQuestions = parseInt(numInput.value);
+        const totalQuestions = quiz.questions.length;
+
+        if (isNaN(numQuestions) || numQuestions < 1) {
+            showToast("Please enter a valid number of questions!", "warning");
+            return;
+        }
+
+        if (numQuestions > totalQuestions) {
+            showToast(`You can attempt at most ${totalQuestions} questions!`, "error");
+            numQuestions = totalQuestions;
+            numInput.value = totalQuestions;
+            return;
+        }
+
+        startQuiz(index, numQuestions);
+    }
 }
 
 function startQuiz(index) {
@@ -788,7 +803,6 @@ function clearScores() {
     loadScores();
 }
 
-// Toast notification system
 function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
@@ -819,12 +833,10 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// Enhanced alert function with toast
 function showAlert(message, type = 'info') {
     showToast(message, type);
 }
 
-// Loading overlay functions
 function showLoading() {
     const overlay = document.getElementById('loading-overlay');
     overlay.classList.remove('hidden');
